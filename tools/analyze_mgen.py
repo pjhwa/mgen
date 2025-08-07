@@ -76,7 +76,7 @@ def print_iperf_like_table(host, metrics):
 def main(log_files, output_csv):
     """
     여러 로그 파일 분석 및 CSV 출력.
-    log_files: 리스트 of 파일 경로 (e.g., ['host1_log.txt', 'host2_log.txt'])
+    log_files: 리스트 of 파일 경로 (e.g., ['receiver_host1.log', 'receiver_host2.log'])
     """
     results = defaultdict(dict)
     with open(output_csv, 'w', newline='') as csvfile:
@@ -99,7 +99,7 @@ def main(log_files, output_csv):
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
-        print("사용법: python analyze_mgen.py log1.txt log2.txt ... output.csv")
+        print("Usage: python3 analyze_mgen.py receiver_host1.log receiver_host2.log ... output.csv")
         sys.exit(1)
     log_files = sys.argv[1:-1]
     output_csv = sys.argv[-1]
