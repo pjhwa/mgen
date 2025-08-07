@@ -1,4 +1,4 @@
-#            MGEN Version 5.x
+            MGEN Version 5.x
 
 This directory contains source code for the NRL Multi-Generator
 (MGEN) Test Tool Set Version 5.x.  MGEN Version 5 is based on 
