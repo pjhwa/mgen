@@ -1,0 +1,14 @@
+# Global Commands
+START NOW
+
+# 수신 버퍼 크기 설정
+RXBUFFER 65536
+
+# 내장 분석 활성화 (loss, latency 자동 계산)
+ANALYTICS
+# 분석 윈도우 1초 (지터/손실률 측정 간격)
+WINDOW 1
+
+# Reception Events
+# 포트 5000 수신
+0.0 LISTEN UDP 5000
