@@ -1,4 +1,4 @@
-            MGEN Version 5.x
+#            MGEN Version 5.x
 
 This directory contains source code for the NRL Multi-Generator
 (MGEN) Test Tool Set Version 5.x.  MGEN Version 5 is based on 
@@ -44,6 +44,10 @@ Primary new features included 5.02b:
 12) Includes bug fix for compiling under Visual Studio 6.0 (submitted
     by Kevin Wambsganz)
 13) Includes bug fix for retaining src port upon flow MOD command.
+
+Primary new features and fixes included in 5.x:
+
+Fixed UDP broadcast issue by adding explicit SO_BROADCAST socket option setting in MgenUdpTransport class. Ensures reliable broadcast transmission to addresses like 255.255.255.255 by setting SO_BROADCAST in the constructor and Open() method of mgenTransport.cpp. Includes debug logging for SO_BROADCAST setup failures.
 
 Please refer to the Mgen User's Guide for more information on these
 and other features at <https://www.nrl.navy.mil/itd/ncs/products/mgen> or
