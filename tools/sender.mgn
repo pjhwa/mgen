@@ -1,0 +1,21 @@
+# Global Commands
+
+# 즉시 시작
+START NOW
+
+# 송/수신 버퍼 크기 설정 (성능 최적화)
+TXBUFFER 65536
+RXBUFFER 65536
+
+# Broadcast 활성화 (기본 ON)
+BROADCAST ON
+
+# Broadcast는 TTL 1로 충분
+TTL 1
+
+# Transmission Events
+# 1000 packets/sec, 1024 bytes each (10MBytes)
+0.0 ON 1 UDP DST 255.255.255.255/5000 PERIODIC [1000 1024]
+
+# 10초 후 종료 (테스트 기간 제한)
+10.0 OFF 1
