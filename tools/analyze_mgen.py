@@ -73,11 +73,49 @@ def print_iperf_like_table(host, metrics):
     print(f"[ ID] Interval       Transfer     Bandwidth       Jitter    Lost/Total Datagrams")
     print(f"[  1] 0.0-{metrics['duration_sec']} sec   {metrics['transfer_bytes']/1_000_000:.2f} MBytes  {metrics['throughput_mbits_sec']} Mbits/sec  {metrics['jitter_ms']} ms  {metrics['lost_total']}")
 
+def print_summary(all_metrics):
+    """
+    모든 호스트 메트릭스 요약: 평균, MIN, MAX 출력
+    """
+    if not all_metrics:
+        print("Summary: No data available.")
+        return
+
+    # 각 메트릭스 리스트 추출
+    throughputs = [m['throughput_mbits_sec'] for m in all_metrics]
+    jitters = [m['jitter_ms'] for m in all_metrics]
+    losses = [m['loss_rate_percent'] for m in all_metrics]
+    latencies = [m['avg_latency_ms'] for m in all_metrics]
+
+    # 평균 계산
+    avg_throughput = round(statistics.mean(throughputs), 2) if throughputs else 0
+    avg_jitter = round(statistics.mean(jitters), 3) if jitters else 0
+    avg_loss = round(statistics.mean(losses), 1) if losses else 0
+    avg_latency = round(statistics.mean(latencies), 3) if latencies else 0
+
+    # MIN/MAX 계산
+    min_throughput = round(min(throughputs), 2) if throughputs else 0
+    max_throughput = round(max(throughputs), 2) if throughputs else 0
+    min_jitter = round(min(jitters), 3) if jitters else 0
+    max_jitter = round(max(jitters), 3) if jitters else 0
+    min_loss = round(min(losses), 1) if losses else 0
+    max_loss = round(max(losses), 1) if losses else 0
+    min_latency = round(min(latencies), 3) if latencies else 0
+    max_latency = round(max(latencies), 3) if latencies else 0
+
+    print("\nSummary (Across all receivers):")
+    print(f"Metric             Average      MIN          MAX")
+    print(f"Throughput (Mbits/sec) {avg_throughput:<12} {min_throughput:<12} {max_throughput}")
+    print(f"Jitter (ms)        {avg_jitter:<12} {min_jitter:<12} {max_jitter}")
+    print(f"Loss Rate (%)      {avg_loss:<12} {min_loss:<12} {max_loss}")
+    print(f"Avg Latency (ms)   {avg_latency:<12} {min_latency:<12} {max_latency}")
+
 def main(log_files, output_csv):
     """
     여러 로그 파일 분석 및 CSV 출력.
-    log_files: 리스트 of 파일 경로 (e.g., ['receiver_host1.log', 'receiver_host2.log'])
+    log_files: 리스트 of 파일 경로 (e.g., ['host1_log.txt', 'host2_log.txt'])
     """
+    all_metrics = []  # 모든 호스트 메트릭스 수집 리스트
     results = defaultdict(dict)
     with open(output_csv, 'w', newline='') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=['host', 'throughput_mbits_sec', 'jitter_ms', 'loss_rate_percent', 'avg_latency_ms'])
@@ -88,6 +126,7 @@ def main(log_files, output_csv):
             events = parse_mgen_log(log)
             metrics = analyze_metrics(events)
             metrics['host'] = host
+            all_metrics.append(metrics)  # 요약용 리스트 추가
             writer.writerow({
                 'host': host,
                 'throughput_mbits_sec': metrics['throughput_mbits_sec'],
@@ -97,9 +136,12 @@ def main(log_files, output_csv):
             })
             print_iperf_like_table(host, metrics)  # iperf-like 출력 추가
 
+    # 모든 분석 후 요약 출력
+    print_summary(all_metrics)
+
 if __name__ == "__main__":
     if len(sys.argv) < 3:
-        print("Usage: python3 analyze_mgen.py receiver_host1.log receiver_host2.log ... output.csv")
+        print("사용법: python analyze_mgen.py log1.txt log2.txt ... output.csv")
         sys.exit(1)
     log_files = sys.argv[1:-1]
     output_csv = sys.argv[-1]
