@@ -6,7 +6,7 @@
 #       analyze_mgen.py는 /root/에 있음.
 #       ssh 키 기반 접속 가능, citec sudo nopasswd 설정 가정.
 #       VM 리스트: k2~k10 (9 VM까지 지원, 필요 시 확장).
-#       결과 파일: /root/test_results.md (Markdown 테이블).
+#       결과 파일: /root/test_results.md (Markdown 테이블), /root/test_results.csv (CSV 테이블).
 
 # 수신 VM 전체 리스트 (k2~k10 가정)
 ALL_RECEIVERS=("k2" "k3" "k4" "k5" "k6" "k7" "k8" "k9" "k10")
@@ -15,9 +15,12 @@ ALL_RECEIVERS=("k2" "k3" "k4" "k5" "k6" "k7" "k8" "k9" "k10")
 SCENARIOS=(100 50 30)
 VM_COUNTS=(3 6 9)
 
-# 결과 테이블 헤더
+# 결과 테이블 헤더 (Markdown)
 echo "| 부하시나리오 | receiver VM배치 | bandwidth(Mb/s) | Jitter(ms) | Loss율(%)|" > /root/test_results.md
 echo "|------------|----------------|-----------------|----------|----------|" >> /root/test_results.md
+
+# 결과 테이블 헤더 (CSV)
+echo "부하시나리오,receiver VM배치,\"bandwidth(Mb/s)\",\"Jitter(ms)\",\"Loss율(%)\"" > /root/test_results.csv
 
 # 각 시나리오 루프
 for rate in "${SCENARIOS[@]}"; do
@@ -84,22 +87,25 @@ EOF
         fi
         python3 /root/analyze_mgen.py $log_files $CASE_DIR/analysis_result.csv > $CASE_DIR/analysis_output.txt
 
-        # 단계 6: 분석 결과 파싱 (Summary 섹션에서 Avg/Min/Max 추출)
+        # 단계 6: 분석 결과 파싱 (Summary 섹션에서 Avg/Min/Max 추출, N/A로 기본값 처리)
         SUMMARY_FILE="$CASE_DIR/analysis_output.txt"
-        BW_AVG=$(grep "Throughput (Mbits/sec)" $SUMMARY_FILE | awk '{print $2}')
-        BW_MIN=$(grep "Throughput (Mbits/sec)" $SUMMARY_FILE | awk '{print $3}')
-        BW_MAX=$(grep "Throughput (Mbits/sec)" $SUMMARY_FILE | awk '{print $4}')
-        JITTER_AVG=$(grep "Jitter (ms)" $SUMMARY_FILE | awk '{print $2}')
-        JITTER_MIN=$(grep "Jitter (ms)" $SUMMARY_FILE | awk '{print $3}')
-        JITTER_MAX=$(grep "Jitter (ms)" $SUMMARY_FILE | awk '{print $4}')
-        LOSS_AVG=$(grep "Loss Rate (%)" $SUMMARY_FILE | awk '{print $2}')
-        LOSS_MIN=$(grep "Loss Rate (%)" $SUMMARY_FILE | awk '{print $3}')
-        LOSS_MAX=$(grep "Loss Rate (%)" $SUMMARY_FILE | awk '{print $4}')
+        BW_AVG=$(grep "Throughput (Mbits/sec)" $SUMMARY_FILE | awk '{print $2}' || echo "N/A")
+        BW_MIN=$(grep "Throughput (Mbits/sec)" $SUMMARY_FILE | awk '{print $3}' || echo "N/A")
+        BW_MAX=$(grep "Throughput (Mbits/sec)" $SUMMARY_FILE | awk '{print $4}' || echo "N/A")
+        JITTER_AVG=$(grep "Jitter (ms)" $SUMMARY_FILE | awk '{print $2}' || echo "N/A")
+        JITTER_MIN=$(grep "Jitter (ms)" $SUMMARY_FILE | awk '{print $3}' || echo "N/A")
+        JITTER_MAX=$(grep "Jitter (ms)" $SUMMARY_FILE | awk '{print $4}' || echo "N/A")
+        LOSS_AVG=$(grep "Loss Rate (%)" $SUMMARY_FILE | awk '{print $2}' || echo "N/A")
+        LOSS_MIN=$(grep "Loss Rate (%)" $SUMMARY_FILE | awk '{print $3}' || echo "N/A")
+        LOSS_MAX=$(grep "Loss Rate (%)" $SUMMARY_FILE | awk '{print $4}' || echo "N/A")
 
-        # 표 행 추가
+        # Markdown 행 추가
         echo "| 256B, ${rate}k pps | ${vm_count} VM | Avg(${BW_AVG}), Min(${BW_MIN}), Max(${BW_MAX}) | Avg(${JITTER_AVG}), Min(${JITTER_MIN}), Max(${JITTER_MAX}) | Avg(${LOSS_AVG}), Min(${LOSS_MIN}), Max(${LOSS_MAX}) |" >> /root/test_results.md
+
+        # CSV 행 추가 (따옴표로 복잡한 값 감싸기)
+        echo "256B, ${rate}k pps,${vm_count} VM,\"Avg(${BW_AVG}), Min(${BW_MIN}), Max(${BW_MAX})\",\"Avg(${JITTER_AVG}), Min(${JITTER_MIN}), Max(${JITTER_MAX})\",\"Avg(${LOSS_AVG}), Min(${LOSS_MIN}), Max(${LOSS_MAX})\"" >> /root/test_results.csv
     done
 done
 
-echo "All tests completed. Results in /root/test_results.md"
-cat /root/test_results.md  # 콘솔에 최종 표 출력
+echo "All tests completed. Results in /root/test_results.md and /root/test_results.csv"
+cat /root/test_results.md  # 콘솔에 Markdown 표 출력
