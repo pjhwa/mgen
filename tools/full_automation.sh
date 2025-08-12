@@ -16,11 +16,11 @@ SCENARIOS=(100 50 30)
 VM_COUNTS=(3 6 9)
 
 # 결과 테이블 헤더 (Markdown)
-echo "| 부하시나리오 | receiver VM배치 | bandwidth(Mb/s) | Jitter(ms) | Loss율(%)|" > /root/test_results.md
-echo "|------------|----------------|-----------------|----------|----------|" >> /root/test_results.md
+echo "| 부하시나리오 | receiver VM배치 | bandwidth(Mb/s) | Jitter(ms) | Loss율(%) | PPS | Avg Latency(ms) |" > /root/test_results.md
+echo "|------------|----------------|-----------------|----------|----------|-----|-----------------|" >> /root/test_results.md
 
 # 결과 테이블 헤더 (CSV)
-echo "부하시나리오,receiver VM배치,\"bandwidth(Mb/s)\",\"Jitter(ms)\",\"Loss율(%)\"" > /root/test_results.csv
+echo "부하시나리오,receiver VM배치,\"bandwidth(Mb/s)\",\"Jitter(ms)\",\"Loss율(%)\",\"PPS\",\"Avg Latency(ms)\"" > /root/test_results.csv
 
 # 각 시나리오 루프
 for rate in "${SCENARIOS[@]}"; do
@@ -98,12 +98,18 @@ EOF
         LOSS_AVG=$(grep "Loss Rate (%)" $SUMMARY_FILE | awk '{print $2}' || echo "N/A")
         LOSS_MIN=$(grep "Loss Rate (%)" $SUMMARY_FILE | awk '{print $3}' || echo "N/A")
         LOSS_MAX=$(grep "Loss Rate (%)" $SUMMARY_FILE | awk '{print $4}' || echo "N/A")
+        PPS_AVG=$(grep "PPS" $SUMMARY_FILE | awk '{print $2}' || echo "N/A")
+        PPS_MIN=$(grep "PPS" $SUMMARY_FILE | awk '{print $3}' || echo "N/A")
+        PPS_MAX=$(grep "PPS" $SUMMARY_FILE | awk '{print $4}' || echo "N/A")
+        LATENCY_AVG=$(grep "Avg Latency (ms)" $SUMMARY_FILE | awk '{print $2}' || echo "N/A")
+        LATENCY_MIN=$(grep "Avg Latency (ms)" $SUMMARY_FILE | awk '{print $3}' || echo "N/A")
+        LATENCY_MAX=$(grep "Avg Latency (ms)" $SUMMARY_FILE | awk '{print $4}' || echo "N/A")
 
         # Markdown 행 추가
-        echo "| 256B, ${rate}k pps | ${vm_count} VM | Avg(${BW_AVG}), Min(${BW_MIN}), Max(${BW_MAX}) | Avg(${JITTER_AVG}), Min(${JITTER_MIN}), Max(${JITTER_MAX}) | Avg(${LOSS_AVG}), Min(${LOSS_MIN}), Max(${LOSS_MAX}) |" >> /root/test_results.md
+        echo "| 256B, ${rate}k pps | ${vm_count} VM | Avg(${BW_AVG}), Min(${BW_MIN}), Max(${BW_MAX}) | Avg(${JITTER_AVG}), Min(${JITTER_MIN}), Max(${JITTER_MAX}) | Avg(${LOSS_AVG}), Min(${LOSS_MIN}), Max(${LOSS_MAX}) | Avg(${PPS_AVG}), Min(${PPS_MIN}), Max(${PPS_MAX}) | Avg(${LATENCY_AVG}), Min(${LATENCY_MIN}), Max(${LATENCY_MAX}) |" >> /root/test_results.md
 
         # CSV 행 추가 (따옴표로 복잡한 값 감싸기)
-        echo "256B, ${rate}k pps,${vm_count} VM,\"Avg(${BW_AVG}), Min(${BW_MIN}), Max(${BW_MAX})\",\"Avg(${JITTER_AVG}), Min(${JITTER_MIN}), Max(${JITTER_MAX})\",\"Avg(${LOSS_AVG}), Min(${LOSS_MIN}), Max(${LOSS_MAX})\"" >> /root/test_results.csv
+        echo "256B, ${rate}k pps,${vm_count} VM,\"Avg(${BW_AVG}), Min(${BW_MIN}), Max(${BW_MAX})\",\"Avg(${JITTER_AVG}), Min(${JITTER_MIN}), Max(${JITTER_MAX})\",\"Avg(${LOSS_AVG}), Min(${LOSS_MIN}), Max(${LOSS_MAX})\",\"Avg(${PPS_AVG}), Min(${PPS_MIN}), Max(${PPS_MAX})\",\"Avg(${LATENCY_AVG}), Min(${LATENCY_MIN}), Max(${LATENCY_MAX})\"" >> /root/test_results.csv
     done
 done
 
