@@ -1,0 +1,10 @@
+# Global Commands
+START NOW
+TXBUFFER 65536
+RXBUFFER 65536
+BROADCAST OFF  # Broadcast 비활성화, multicast로 전환
+TTL 5          # 멀티캐스트 범위 (1=서브넷, 5=5홉까지, 네트워크에 맞게 조정)
+
+# Transmission Events
+0.0 ON 1 UDP DST 239.1.1.1/5000 PERIODIC [80000 256]  # 80k pps, 256B 패킷
+60.0 OFF 1  # 60초 테스트
