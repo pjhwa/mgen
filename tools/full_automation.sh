@@ -85,7 +85,7 @@ EOF
             echo "Error: No log files found for this case."
             continue
         fi
-        python3 /root/analyze_mgen.py $log_files $CASE_DIR/analysis_result.csv > $CASE_DIR/analysis_output.txt
+        python3 /root/analyze_mgen2.py $log_files $CASE_DIR/analysis_result.csv > $CASE_DIR/analysis_output.txt
 
         # 단계 6: 분석 결과 파싱 (Summary 섹션에서 Avg/Min/Max 추출, N/A로 기본값 처리)
         SUMMARY_FILE="$CASE_DIR/analysis_output.txt"
