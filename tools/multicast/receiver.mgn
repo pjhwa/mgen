@@ -5,6 +5,7 @@ ANALYTICS
 WINDOW 1
 
 # Reception Events
-0.0 JOIN 239.1.1.1 INTERFACE eth0  # eth0은 VM 네트워크 인터페이스, 확인 필요
+# eth0은 VM 네트워크 인터페이스, 확인 필요. 60초 후 그룹 해지
+0.0 JOIN 239.1.1.1 INTERFACE eth0  
 0.0 LISTEN UDP 5000
-60.0 LEAVE 239.1.1.1 INTERFACE eth0  # 60초 후 그룹 해지
+60.0 LEAVE 239.1.1.1 INTERFACE eth0 
