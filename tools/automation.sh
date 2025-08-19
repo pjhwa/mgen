@@ -52,7 +52,7 @@ if [ -z "$log_files" ]; then
     echo "Error: No log files found in /root/logs/"
     exit 1
 fi
-python3 /root/analyze_mgen.py $log_files /root/logs/analysis_result.csv
+python3 /root/analyze_mgen2.py $log_files /root/logs/analysis_result.csv
 if [ $? -ne 0 ]; then
     echo "Error: Analysis script failed."
     exit 1
